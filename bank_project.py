@@ -34,12 +34,16 @@ def extract(url, table_attribs):
     for row in rows:
         col = row.find_all('td')
         if len(col)!=0:
-            if col[1].findAll('a')[1] is not None and '—' not in col[2]:
-                data_dict = {"Rank": col[0].contents[0].rstrip(),
-                             "Bank name": col[1].findAll('a')[1].contents[0].rstrip(),
-                             "Market Cap (US$ billion)": col[2].contents[0].rstrip()}
-                df1 = pd.DataFrame(data_dict, index=[0])
-                df = pd.concat([df,df1], ignore_index=True)
+            try:
+                market_cap = float(col[2].contents[0].rstrip())
+                if col[1].findAll('a')[1] is not None and '—' not in col[2]:
+                    data_dict = {"Rank": col[0].contents[0].rstrip(),
+                                "Bank name": col[1].findAll('a')[1].contents[0].rstrip(),
+                                "Market Cap (US$ billion)": market_cap}
+                    df1 = pd.DataFrame(data_dict, index=[0])
+                    df = pd.concat([df,df1], ignore_index=True)
+            except ValueError:
+                print('ValueError')
     return df
 
 def transform(df, csv_path):
